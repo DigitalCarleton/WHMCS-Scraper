@@ -1,6 +1,5 @@
-import sys
-import time
 import getpass
+import pickle
 
 from bs4 import BeautifulSoup
 
@@ -17,6 +16,7 @@ def getDriver() -> webdriver.Chrome | webdriver.Firefox:
     return driver
 
 def getCredentials() -> tuple[str, str]:
+    use_caching = "n"
     # Get the username and password
     try:
         user = open("password.txt", "r", encoding="UTF-8").readlines()
@@ -25,6 +25,12 @@ def getCredentials() -> tuple[str, str]:
     except FileNotFoundError:
         username = input("Enter your username: ")
         password = getpass.getpass("Enter your password: ")
+        use_caching = input("Save your credentials for future use? (y/N): ")
+    # Caching if necessary:
+    if use_caching.lower() == "y":
+        with open("password.txt", "w", encoding="UTF-8") as file:
+            file.write(username + "\n" + password)
+        
     return username, password
     
 
@@ -39,6 +45,7 @@ def getClients(driver: webdriver.Chrome | webdriver.Firefox):
     clients = scrapeClientsPage(driver)
     for client in clients:
         updateClient(driver, client)
+        print(client)
     return clients
 
 # Scrapes the clients page of WHMCS
@@ -84,7 +91,33 @@ def updateClient(driver: webdriver.Chrome | webdriver.Firefox, client: dict[str,
     # Get the client's profile page
     soup = BeautifulSoup(driver.page_source, "html.parser")
     # TODO: Get the client's profile data
+    # Get client's group
+    group_parent = soup.find("td", string="Client Group").find_parent("tr")
+    group = group_parent.findAll("td")[1].text
+    client['group'] = group
     
+    # Get client's services:
+    services = []
+    services_table = soup.find("th", string="Product/Service").find_parent("tr")
+    rows = services_table.find_next_siblings('tr')
+    for row in rows:
+        cells = row.find_all("td")
+        if (len(cells) == 9):
+            service = {
+                'id': cells[1].text,
+                'domain': cells[2].text,
+                'status': cells[-2].text
+            }    
+            services.append(service)
+    client['services'] = services
+    
+    # Get client's admin notes
+    admin_notes = soup.find("textarea", {"name": "adminnotes"}).text
+    client['admin_notes'] = admin_notes 
+    # TODO: Get the client's notes
+    # driver.get(f"https://sites.carleton.edu/manage/whmcs-admin/clientsnotes.php?userid={client['id']}")
+    # soup = BeautifulSoup(driver.page_source, "html.parser")
+    return client
 
 if __name__ == "__main__":
     username, password = getCredentials()
@@ -92,3 +125,6 @@ if __name__ == "__main__":
     login(driver, username, password)
     # Open the users tab and scrape the user data:
     clients = getClients(driver)
+    # Save the clients to a file
+    with open("clients.pkl", "wb") as file:
+        pickle.dump(clients, file)

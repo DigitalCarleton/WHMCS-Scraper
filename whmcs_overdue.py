@@ -8,6 +8,10 @@ def getOverdueClients(clients: dict[str, str]):
             year = client['group'][-4:]
             if int(year) < senior_year:
                 overdue.append(client)
+        elif "Students" in client['admin_notes']:
+            year = client['admin_notes'][-4:]
+            if int(year) < senior_year:
+                overdue.append(client)
     return overdue
 
 def getSeniors(clients: dict[str, str]):
@@ -16,6 +20,10 @@ def getSeniors(clients: dict[str, str]):
     for client in clients:
         if 'Students' in client['group']:
             year = client['group'][-4:]
+            if int(year) == senior_year:
+                seniors.append(client)
+        elif "Students" in client['admin_notes']:
+            year = client['admin_notes'][-4:]
             if int(year) == senior_year:
                 seniors.append(client)
     return seniors

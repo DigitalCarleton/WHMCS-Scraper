@@ -25,3 +25,10 @@ dist-ssr
 
 # Password files
 password.txt
+
+# Pickled/database files
+*.pkl
+*.sqlite
+*.sqlite3
+*.sql
+*.csv

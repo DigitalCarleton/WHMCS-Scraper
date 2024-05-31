@@ -1,7 +1,6 @@
 import time
 from helpers.tables import *
 from helpers.write_file import writeFile
-import helpers.connection as conn
 from tqdm import tqdm
 
 from bs4 import BeautifulSoup
@@ -12,7 +11,6 @@ from selenium.webdriver.common.by import By
 def getClients(driver: webdriver.Chrome | webdriver.Firefox):
     print("Scraping 'clients' page...")
     clients = scrapeClientsPage(driver)
-    #! For testing purposes, only update the first 4 clients
     print("Updating clients...")
     for client in tqdm(clients):
         updateClient(driver, client)
@@ -31,7 +29,7 @@ def scrapeClientsPage(driver: webdriver.Chrome | webdriver.Firefox) -> list[dict
         
         driver.find_elements(By.CLASS_NAME, "page-selector")[-1].click()
     
-    return clients[:50]   
+    return clients  
 
 def updateClient(driver: webdriver.Chrome | webdriver.Firefox, client: dict[str, str]):
     driver.get(f"https://sites.carleton.edu/manage/whmcs-admin/clientssummary.php?userid={client['id']}")
@@ -53,16 +51,3 @@ def updateClient(driver: webdriver.Chrome | webdriver.Firefox, client: dict[str,
     notes_table = soup.find("table", {"id": "sortabletbl1"})
     client['notes'] = notesFromTable(notes_table)
     return client
-
-
-if __name__ == "__main__":
-    username, password = conn.getCredentials()
-    driver = conn.getDriver()
-    conn.login(driver, username, password)
-    # Open the users tab and scrape the user data:
-    clients = getClients(driver)
-    
-    # Write the data to a file:
-    now = time.localtime()
-    filename = f"clients_{now.tm_year}_{now.tm_mon}_{now.tm_mday}.csv"
-    writeFile(filename, clients) 

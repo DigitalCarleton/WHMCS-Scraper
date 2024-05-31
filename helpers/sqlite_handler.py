@@ -51,8 +51,7 @@ def insertClient(conn: Connection, client: dict[str, str]) -> bool:
                     '{client['notes']}')
                 """)
     
-#! 'clientID' may need to be passed in as a parameter
-def insertService(conn: Connection, s: dict[str, str]) -> bool:
+def insertService(conn: Connection, clientID, s: dict[str, str]) -> bool:
     cur = conn.cursor()
     cur.execute(f" SELECT * FROM services WHERE id = {s['id']}" )
     if cur.fetchone() is not None:
@@ -62,7 +61,7 @@ def insertService(conn: Connection, s: dict[str, str]) -> bool:
                     (id, clientId, domain, status)
                     VALUES
                     ({s['id']}, 
-                    {s['clientId']}, 
+                    {clientID}, 
                     '{s['domain']}', 
                     '{s['status']}')
                 """)
@@ -70,10 +69,15 @@ def insertService(conn: Connection, s: dict[str, str]) -> bool:
     cur.close()
     return True
 
-if __name__ == "__main__":
+def writeClientsToDB(clients: list[dict[str, str]]):
     conn = sqlite3.connect('whmcs_clients.db')
     reset = input("Reset the database? (y/N): ")
     if reset.lower() == 'y':
         createClientsTable(conn)
         createServicesTable(conn)
+     
+    for client in clients:
+        insertClient(conn, client)        
+        for service in client['services']:
+            insertService(conn, client['id'], service)    
     conn.close()

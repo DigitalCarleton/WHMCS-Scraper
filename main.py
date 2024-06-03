@@ -6,16 +6,15 @@ from helpers.whmcs_scraper import getClients
 from helpers.sqlite_handler import writeClientsToDB
 
 def main():
-    if False:
-        username, password = conn.getCredentials()
-        driver = conn.getDriver()
-        conn.login(driver, username, password)
-        # Open the users tab and scrape the user data:
-        clients = getClients(driver)
+    username, password = conn.getCredentials()
+    driver = conn.getDriver()
+    conn.login(driver, username, password)
+    # Open the users tab and scrape the user data:
+    clients = getClients(driver)
     
-    
-    import pickle
-    clients = pickle.load(open("clients.pkl", "rb"))
+    #! For debugging purposes, we can unpickle an example set:
+    # import pickle
+    # clients = pickle.load(open("clients.pkl", "rb"))
     
     # Write the data to a database:
     writeClientsToDB(clients)

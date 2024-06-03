@@ -5,7 +5,9 @@ import getpass
 def getDriver() -> webdriver.Chrome | webdriver.Firefox:
     # Set up the driver
     # TODO: Implement the ability to choose between Chrome and Firefox
-    driver = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(10)
     return driver
 
@@ -21,7 +23,7 @@ def getCredentials() -> tuple[str, str]:
     return username, password
     
 
-def login(driver: webdriver.Chrome | webdriver.Firefox, username: str, password: str):
+def login(driver: webdriver.Chrome | webdriver.Firefox, username: str, password: str) -> None:
     # Go to the login page
     driver.get("https://sites.carleton.edu/manage/whmcs-admin/login.php")
     driver.find_element(By.NAME, "username").send_keys(username)

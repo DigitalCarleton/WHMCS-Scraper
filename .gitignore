@@ -1,3 +1,7 @@
+# env variables
+__pycache__/
+
+
 # Logs
 logs
 *.log

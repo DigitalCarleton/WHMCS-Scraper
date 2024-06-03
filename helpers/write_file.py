@@ -11,9 +11,9 @@ def writeFile(filename: str, clients: list[dict[str, str]]):
         line = []
         for key in keys:
             if key in client:
-                line.append(str(client[key]))
+                line.append('"' + str(client[key]) + '"')
             else:
-                line.append("")
+                line.append('""')
         f.write(",".join(line) + "\n")
     f.close()
 
@@ -22,4 +22,4 @@ def translateServices(services: list[dict[str, str]]) -> str:
     s = []
     for service in services:
         s.append(f"{service['id']} | {service['domain']} | {service['status']}")
-    return "\\n".join(s)
+    return "\n".join(s)

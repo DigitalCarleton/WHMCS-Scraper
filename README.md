@@ -2,7 +2,7 @@
 This project scrapes clients' information from the WHMCS portal and inputs them into a CSV file and an SQLite database.
 
 ## Setup
-First, clone this repository (```git clone https://github.com/samgjl/WHMCS-Scraper.git```).
+First, clone this repository (```git clone https://github.com/DigitalCarleton/WHMCS-Scraper.git```).
 
 You will need the following to run this program:
 - A working distribution of Python ([3.11 recommended](https://www.python.org/downloads/release/python-3119/))
